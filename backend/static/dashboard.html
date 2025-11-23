@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixel Bot - Control Panel</title>
+    <link rel="icon" type="image/png" href="/static/images/logo.png">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+    <div id="app">
+        <app-container></app-container>
+    </div>
+
+    <!-- Socket.IO -->
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+
+    <!-- Vue 3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <!-- Services -->
+    <script src="/static/services/api.js"></script>
+    <script src="/static/services/socket.js"></script>
+    <script src="/static/services/validation.js"></script>
+
+    <!-- Shared Components -->
+    <script src="/static/components/shared/FormGroup.js"></script>
+    <script src="/static/components/shared/ColorPreview.js"></script>
+    <script src="/static/components/shared/PixelDisplay.js"></script>
+    <script src="/static/components/shared/ActionButtons.js"></script>
+
+    <!-- Components -->
+    <script src="/static/components/AppHeader.js"></script>
+    <script src="/static/components/QuickActions.js"></script>
+    <script src="/static/components/MonitorsList.js"></script>
+    <script src="/static/components/ActivityLog.js"></script>
+    <script src="/static/components/MonitorModal.js"></script>
+    <script src="/static/components/AppContainer.js"></script>
+
+    <!-- Main App -->
+    <script src="/static/app.js"></script>
+</body>
+
+</html>

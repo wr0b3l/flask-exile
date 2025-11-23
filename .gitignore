@@ -1,0 +1,59 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+*.egg-info/
+*.egg
+
+# Flask
+instance/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+screenshots/
+templates/
+static/
+*.log
+test_results.log
+
+# Node (if React ever comes back)
+node_modules/
+npm-debug.log*
+package-lock.json
+
+# Temporary files
+*.tmp
+*.temp
+~*
+
+# Build artifacts (PyInstaller)
+dist/
+build/
+*.exe
+*.spec.bak
+installer/
+installer.iss
+
+# User config and runtime data
+monitors_config.json
+pixelbot_config.ini
+
+# Test caches
+.pytest_cache/
