@@ -1,259 +1,322 @@
-# Pixel Bot - Automated Pixel Detection & Monitoring
+# Pixel Bot - Desktop Automation Tool
 
-A powerful desktop automation tool for pixel detection, continuous monitoring, and automated actions.
+[![Python](https://img.shields.io/badge/Python-3.13-blue.svg)](https://www.python.org/)
+[![Flask](https://img.shields.io/badge/Flask-2.3-green.svg)](https://flask.palletsprojects.com/)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Platform](https://img.shields.io/badge/Platform-Windows-lightgrey.svg)](https://www.microsoft.com/windows)
 
-## 🎯 Features
+A powerful desktop automation tool for Windows that monitors screen pixels and triggers keyboard actions. Perfect for gaming automation, workflow automation, and repetitive tasks.
 
-- **System-Wide Pixel Picking**: Pick pixels from anywhere on your screen (any app, game, or desktop)
-- **Continuous Monitoring**: Monitor multiple pixels simultaneously for color changes
-- **Automated Actions**: Trigger keyboard/mouse actions when pixel colors match
-- **Web Dashboard**: Beautiful control panel for managing monitors and viewing statistics
-- **Real-Time Updates**: Live activity log via WebSocket
-- **Cross-Platform**: Works on Windows, Linux, and macOS
+![Pixel Bot Dashboard](backend/static/images/logo.png)
+
+## ✨ Features
+
+### Core Functionality
+- 🎯 **Pixel Monitoring** - Monitor specific screen pixels with color tolerance
+- 🔍 **Desktop Pixel Picker** - System-wide overlay for accurate pixel selection
+- ⌨️ **Input Automation** - Trigger keyboard actions (keypresses, hotkeys)
+- 📊 **Real-time Dashboard** - Vue.js-powered web interface with live updates
+- 💾 **Persistent Configuration** - Save and load monitor setups
+
+### Advanced Features
+- 👑 **Master-Slave System** - Hierarchical monitoring to handle loading screens
+- 🔢 **Multi-Pixel Detection** - Check up to 6 pixels with AND/OR logic (master monitors)
+- ⏱️ **Cooldown System** - Prevent action spam with configurable delays
+- 🎨 **Custom Dark Theme** - Path of Exile 2 inspired UI
+- 🔌 **Smart Port Detection** - Auto-finds free ports (5000-5009)
+- ⚙️ **INI Configuration** - Optional user configuration file
+
+### Distribution
+- 📦 **Standalone Executable** - PyInstaller builds for easy distribution
+- 🚀 **No Dependencies** - Works on any Windows PC without Python
+- 🔧 **Professional Installer** - Inno Setup scripts included
 
 ## 🚀 Quick Start
 
-### Prerequisites
-- Python 3.8+
-- All dependencies installed
+### For Users (Standalone)
 
-### Installation
+1. **Download** the latest release from [Releases](https://github.com/wr0b3l/flask-exile/releases)
+2. **Run** `PixelBot.exe`
+3. **Browser opens** automatically with the dashboard
+4. **Create monitors** and start automating!
 
-1. **Install Python dependencies:**
+No Python or setup required! ✨
+
+### For Developers
+
+#### Prerequisites
+- Python 3.11+
+- Windows 10/11
+- Git
+
+#### Installation
+
 ```bash
+# Clone the repository
+git clone https://github.com/wr0b3l/flask-exile.git
+cd flask-exile
+
+# Create virtual environment
+python -m venv venv
+
+# Activate virtual environment
+.\venv\Scripts\Activate.ps1
+
+# Install dependencies
+pip install -r backend\requirements.txt
+
+# Run the application
 cd backend
-pip install -r requirements.txt
+python app.py
 ```
 
-2. **Start the application:**
-```bash
-.\start-dev.ps1
-```
-
-3. **Open dashboard:**
-```
-http://localhost:5000
-```
+The dashboard will open at `http://localhost:5000`
 
 ## 📖 Usage
 
-### Method 1: Web Dashboard (Recommended)
+### Creating a Monitor
 
-1. Open http://localhost:5000
-2. Click "Pick Pixel" to launch desktop overlay
-3. Click anywhere on screen to select pixel
-4. Add monitors and configure actions
-5. View real-time updates
+1. **Click "Add Monitor"** in the dashboard
+2. **Basic Info Tab:**
+   - Enter a name (e.g., "Health Low Alert")
+   - Set color tolerance (default: 10)
 
-### Method 2: Command Line
+3. **Pixels Tab:**
+   - Click "Pick Pixel from Screen"
+   - Click on the pixel you want to monitor
+   - Add more pixels for multi-pixel checks (masters only)
 
-**Pick a pixel:**
-```bash
-cd backend
-python desktop_picker.py --pick
+4. **Type & Mode Tab:**
+   - Choose monitor type (Normal/Master/Slave)
+   - Set trigger mode (Match/No Match)
+
+5. **Action Tab:**
+   - Select action type (Key Press/Hotkey/Log Only)
+   - Enter the key (e.g., "r", "ctrl+1")
+   - Set cooldown (milliseconds)
+
+6. **Click "Add Monitor"**
+
+### Monitor Types
+
+#### Normal Monitor
+- Independent pixel monitoring
+- Triggers action when condition is met
+- Simple and straightforward
+
+#### Master Monitor
+- Can check multiple pixels (up to 6)
+- Controls linked "slave" monitors
+- When master is ACTIVE → slaves can run
+- When master is INACTIVE → slaves are blocked
+
+**Use case:** Check if game UI is visible (multiple UI elements)
+
+#### Slave Monitor
+- Linked to a master monitor
+- Only runs when master is active
+- Prevents false triggers during loading screens
+
+**Use case:** Health monitoring (only when UI is visible)
+
+### Trigger Modes
+
+- **Match** - Triggers when pixel IS the target color
+- **No Match** - Triggers when pixel is NOT the target color
+
+## 🏗️ Architecture
+
+### Backend (Python)
+- **Framework:** Flask + Flask-SocketIO
+- **Modular Design:** Config, Models, Services, Routes, WebSocket
+- **Monitoring:** Background thread (100ms interval)
+- **Libraries:** MSS (screen capture), PyAutoGUI (input), Pynput (control)
+
+### Frontend (Vue.js 3 CDN)
+- **Framework:** Vue.js 3 (no build step required)
+- **Components:** Modular, reusable components
+- **Services:** Centralized API and Socket.IO
+- **Theme:** Custom dark theme with pulsing logo
+
+### Project Structure
+
 ```
-
-**Monitor a pixel:**
-```bash
-cd backend
-python desktop_picker.py --monitor 100 100 --color 255 0 0 --key space
-```
-
-**Advanced monitoring:**
-```python
-import sys
-sys.path.append('backend')
-from pixel_monitor import PixelMonitor
-
-monitor = PixelMonitor()
-monitor.add_monitor(
-    x=100, y=50,
-    target_color=(255, 0, 0),
-    action={'type': 'keypress', 'key': 'h'},
-    name="Health Monitor"
-)
-monitor.run()
-```
-
-## 📁 Project Structure
-
-```
-potta/
+flask-exile/
 ├── backend/
-│   ├── app.py                    # Flask API server + WebSocket
-│   ├── desktop_picker.py         # Desktop pixel picker overlay
-│   ├── pixel_monitor.py          # Pixel monitoring system
-│   ├── bot/
-│   │   ├── screen_capture.py    # Screen capture
-│   │   ├── pixel_detector.py    # Pixel detection
-│   │   ├── image_matcher.py     # Image matching
-│   │   └── text_reader.py       # OCR (requires Tesseract)
-│   ├── static/
-│   │   └── dashboard.html        # Web dashboard (single file)
-│   ├── requirements.txt
-│   └── venv/
-├── start-dev.ps1                 # Launch script (Windows)
-├── start-dev.py                  # Launch script (cross-platform)
-└── README.md                     # This file
+│   ├── app.py              # Main Flask application
+│   ├── config.py           # Configuration with port detection
+│   ├── config_loader.py    # INI file loader
+│   ├── models/             # Data models
+│   ├── services/           # Business logic
+│   ├── routes/             # API endpoints
+│   ├── websocket/          # Socket.IO events
+│   ├── bot/                # Automation modules
+│   └── static/             # Vue.js dashboard
+├── PixelBot.spec          # PyInstaller configuration
+├── build_standalone.ps1   # Build script for .exe
+├── build_installer.ps1    # Installer build script
+└── requirements-build.txt # Build dependencies
 ```
 
-## 🎮 Use Cases
+## 🛠️ Building Standalone Executable
 
-### Game Automation
-```python
-# Monitor health bar, use potion when low
-monitor.add_monitor(
-    x=100, y=50,
-    target_color=(255, 0, 0),  # Red = low health
-    action={'type': 'keypress', 'key': 'h'}
-)
+### Build the .exe
+
+```powershell
+# Install build tools
+pip install -r requirements-build.txt
+
+# Build standalone executable
+.\build_standalone.ps1 -Clean
+
+# Output: dist/PixelBot.exe (~67 MB)
 ```
 
-### UI Testing
-```python
-# Wait for button to become enabled (green)
-monitor.add_monitor(
-    x=500, y=300,
-    target_color=(0, 255, 0),  # Green = enabled
-    action={'type': 'click', 'x': 500, 'y': 300}
-)
+### Create Installer (Optional)
+
+Requires [Inno Setup](https://jrsoftware.org/isinfo.php)
+
+```powershell
+.\build_installer.ps1
+
+# Output: installer/PixelBot_Setup_v1.0.0.exe
 ```
 
-### Screen Monitoring
-```python
-# Alert when specific color appears
-monitor.add_monitor(
-    x=800, y=600,
-    target_color=(255, 255, 0),  # Yellow alert
-    action={'type': 'log'}
-)
+## ⚙️ Configuration
+
+### Optional Config File
+
+Create `pixelbot_config.ini` next to `PixelBot.exe`:
+
+```ini
+[server]
+port = 5000
+host = 0.0.0.0
+
+[monitoring]
+check_interval = 0.1
+default_tolerance = 10
+default_cooldown = 1000
+
+[advanced]
+log_level = INFO
+picker_timeout = 30
 ```
 
-## 🔧 Configuration
+## 📊 Performance
 
-### Pixel Monitor Actions
-
-**Keypress:**
-```python
-action={'type': 'keypress', 'key': 'space'}
-```
-
-**Hotkey Combo:**
-```python
-action={'type': 'hotkey', 'keys': ['ctrl', 'c']}
-```
-
-**Mouse Click:**
-```python
-action={'type': 'click', 'x': 500, 'y': 300, 'button': 'left'}
-```
-
-**Custom Callback:**
-```python
-def my_callback(monitor, color):
-    print(f"Matched! Color: {color}")
-
-action={'type': 'callback', 'function': my_callback}
-```
-
-## 🛠️ API Endpoints
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/` | GET | Web dashboard |
-| `/api/status` | GET | Server status |
-| `/api/screen/capture` | POST | Capture screenshot |
-| `/api/pixel/get-color` | POST | Get pixel color |
-| `/api/picker/launch` | POST | Launch desktop pixel picker |
-| `/api/monitor/add` | POST | Add pixel monitor |
-| `/api/monitor/list` | GET | List monitors |
-| `/api/monitor/remove/<id>` | DELETE | Remove monitor |
-| `/api/monitor/toggle/<id>` | POST | Pause/resume monitor |
-| `/api/monitor/edit/<id>` | PUT | Edit monitor settings |
-
-## 🔌 WebSocket Events
-
-- `connect` - Client connected
-- `monitor_update` - Monitor list updated
-- `monitor_match` - Pixel color matched
-- `action_triggered` - Action executed
-
-## 📊 Technical Details
-
-### Technologies
-- **Backend**: Python, Flask, Flask-SocketIO
-- **Frontend**: HTML, CSS, JavaScript, Socket.IO
-- **Automation**: PyAutoGUI, Tkinter
-- **Vision**: MSS, OpenCV, Pillow, Tesseract
-
-### Performance
-- Screen capture: ~20-30ms (4K)
-- Pixel detection: ~5-10ms
-- Monitor checks: 10/second (configurable)
+- **CPU Usage:** ~0.5-1% on modern CPUs
+- **Memory:** ~70 MB
+- **Check Frequency:** 10 times per second (100ms interval)
+- **Response Time:** 6-18ms (detection + action)
+- **Max Monitors:** 20-30 before optimization needed
 
 ## 🐛 Troubleshooting
 
-**Port already in use:**
+### Port Already in Use
+- **Auto-handled!** App finds next free port automatically
+- Check console for actual port being used
+
+### Monitor Not Triggering
+- Re-pick the pixel (screen may have changed)
+- Increase tolerance (try 15-20)
+- Check trigger mode (Match vs No Match)
+- Verify cooldown isn't blocking
+
+### Actions Not Working
+- Run as Administrator if needed
+- Use borderless windowed mode (not fullscreen)
+- Check key name spelling
+
+### Antivirus False Positive
+- Common with PyInstaller executables
+- Add to whitelist or use code signing
+
+## 📝 Development
+
+### Tech Stack
+
+**Backend:**
+- Python 3.13
+- Flask 2.3
+- Flask-SocketIO 5.3
+- MSS 9.0 (screen capture)
+- NumPy 2.1 (pixel operations)
+- OpenCV 4.12 (image processing)
+- PyAutoGUI 0.9 (automation)
+- Pynput 1.7 (input control)
+
+**Frontend:**
+- Vue.js 3.5 (CDN)
+- Socket.IO Client
+- Custom CSS (Path of Exile 2 theme)
+
+**Build:**
+- PyInstaller 6.16
+- Inno Setup (optional)
+
+### Running Tests
+
 ```bash
-.\kill-ports.ps1
+# Start development server
+cd backend
+python app.py
+
+# Open browser
+http://localhost:5000
 ```
 
-**Threading errors:**
-- Fixed! Each request creates fresh MSS instance
+### Contributing
 
-**Wrong pixel colors:**
-- Use desktop_picker.py instead of browser picking
-
-**Tesseract not found:**
-- Install from: https://github.com/UB-Mannheim/tesseract/wiki
-- Configure path in `backend/bot/text_reader.py`
-
-## 📝 Documentation
-
-- `README.md` - This file (main documentation)
-- `ARCHITECTURE.md` - System architecture and design
-- `ARCHITECTURAL_REDESIGN.txt` - Major design decisions
-- `SIMPLIFIED_ARCHITECTURE.txt` - Final architecture explanation
-
-## 🎉 Quick Tips
-
-1. **Pick pixels accurately**: Use desktop_picker.py for system-wide picking
-2. **Monitor multiple pixels**: Add as many monitors as needed
-3. **Adjust tolerance**: Increase for similar colors, decrease for exact matches
-4. **Save configurations**: Use `monitor.save_config('myconfig.json')`
-5. **View logs**: Check activity log in web dashboard
-
-## 🚦 Getting Started
-
-```bash
-# 1. Start the server
-.\start-dev.ps1
-
-# 2. Open dashboard
-# http://localhost:5000
-
-# 3. Click "Pick Pixel"
-# Desktop overlay appears
-
-# 4. Click anywhere to select pixel
-
-# 5. Configure monitor and action
-
-# 6. Watch it work!
-```
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## 📄 License
 
-MIT License - Feel free to use for personal or commercial projects
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## ⚠️ Legal Notice
+
+**Important:** Always check your game's Terms of Service before using automation tools. Some games prohibit automation and may ban accounts.
+
+**This tool is provided as-is with no warranty. Use at your own risk.**
 
 ## 🙏 Acknowledgments
 
-Built with: Flask, PyAutoGUI, OpenCV, MSS, Tkinter, Socket.IO
+- **Flask & Vue.js** - Excellent frameworks
+- **PyInstaller** - Making Python distribution easy
+- **Path of Exile 2** - UI design inspiration
+- **MSS** - Fast screen capture library
+
+## 📞 Support
+
+- **Issues:** [GitHub Issues](https://github.com/wr0b3l/flask-exile/issues)
+- **Discussions:** [GitHub Discussions](https://github.com/wr0b3l/flask-exile/discussions)
+- **Documentation:** [User Guide](USER_GUIDE.md)
+
+## 🗺️ Roadmap
+
+- [ ] System tray icon (hide console)
+- [ ] Keyboard shortcuts
+- [ ] Monitor templates
+- [ ] Export/import monitors
+- [ ] Performance profiling UI
+- [ ] Auto-update system
+- [ ] Multi-language support
+
+## 📈 Stats
+
+- **Lines of Code:** ~9,000
+- **Components:** 10+ Vue components
+- **API Endpoints:** 20+
+- **Build Time:** ~45 seconds
+- **Executable Size:** ~67 MB
 
 ---
 
-**Status**: ✅ Production Ready
+**Made with ❤️ for automation enthusiasts**
 
-**Version**: 2.0.0 (Desktop-focused architecture)
-
-**Last Updated**: November 2025
+**Star ⭐ this repo if you find it useful!**

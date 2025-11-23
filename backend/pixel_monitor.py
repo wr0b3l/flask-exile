@@ -4,7 +4,7 @@ Monitors specified pixels and triggers keyboard actions on color changes
 """
 
 import time
-import pyautogui
+import pydirectinput
 from PIL import ImageGrab
 import json
 import sys
@@ -77,18 +77,23 @@ class PixelMonitor:
             if action['type'] == 'keypress':
                 key = action['key']
                 print(f"[{monitor['name']}] Pressing key: {key}")
-                pyautogui.press(key)
+                pydirectinput.press(key)
                 
             elif action['type'] == 'hotkey':
                 keys = action['keys']  # List of keys like ['ctrl', 'c']
                 print(f"[{monitor['name']}] Pressing hotkey: {'+'.join(keys)}")
-                pyautogui.hotkey(*keys)
+                # pydirectinput doesn't have hotkey, so we need to press keys sequentially
+                for key in keys[:-1]:
+                    pydirectinput.keyDown(key)
+                pydirectinput.press(keys[-1])
+                for key in reversed(keys[:-1]):
+                    pydirectinput.keyUp(key)
                 
             elif action['type'] == 'click':
                 x, y = action.get('x', monitor['x']), action.get('y', monitor['y'])
                 button = action.get('button', 'left')
                 print(f"[{monitor['name']}] Clicking at ({x}, {y})")
-                pyautogui.click(x, y, button=button)
+                pydirectinput.click(x, y, button=button)
                 
             elif action['type'] == 'callback':
                 func = action['function']

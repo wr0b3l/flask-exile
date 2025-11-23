@@ -29,7 +29,6 @@ Thumbs.db
 # Project specific
 screenshots/
 templates/
-static/
 *.log
 test_results.log
 

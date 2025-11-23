@@ -9,6 +9,7 @@ from flask_socketio import SocketIO
 import os
 import logging
 import sys
+import time
 
 # Import configuration
 from config import get_config
@@ -127,7 +128,14 @@ if __name__ == '__main__':
     
     # Run the Flask-SocketIO server
     try:
-        socketio.run(app, debug=Config.DEBUG, host=Config.HOST, port=port)
+        # Disable reloader to prevent double-startup in debug mode
+        socketio.run(
+            app, 
+            debug=Config.DEBUG, 
+            host=Config.HOST, 
+            port=port,
+            use_reloader=False  # Prevents Flask from spawning a second process
+        )
     except OSError as e:
         if "Address already in use" in str(e):
             logger.error(f"Port {port} is already in use. Please close other instances or specify a different port.")
