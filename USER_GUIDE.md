@@ -1,333 +1,188 @@
-# 🎮 Pixel Bot - User Guide
+# Pixel Bot — User Guide
 
-## **What is Pixel Bot?**
-
-Pixel Bot is a desktop automation tool that monitors specific pixels on your screen and triggers keyboard actions when those pixels change color. Perfect for gaming automation, workflow automation, and repetitive tasks!
+Pixel Bot watches specific pixels on your screen and fires keyboard actions when they change. Useful for Path of Exile (flasks, auto-loot triggers, UI-gated automation) and similar games or workflows.
 
 ---
 
-## **Quick Start (Standalone .exe)**
+## Running Pixel Bot
 
-### **Step 1: Download**
-- Download `PixelBot.exe` (or run the installer)
-- No installation needed for the .exe version!
+### Option A — Installed executable (end users)
 
-### **Step 2: Run**
-- Double-click `PixelBot.exe`
-- Your browser opens automatically with the dashboard
-- You'll see a console window (this is normal - shows logs)
+1. Grab `PixelBot.exe` from the latest release.
+2. Double-click it.
+3. A **native Pixel Bot window** opens — no browser tab, no console.
+4. Start adding monitors.
 
-### **Step 3: Create Your First Monitor**
+Your saved monitors live in `monitors_config.json` next to the `.exe` (created automatically).
 
-1. Click **"Add Monitor"** button
-2. Fill in the details:
-   - **Name**: e.g., "Health Low Alert"
-   - **Tolerance**: 10 (how much color can vary)
-   
-3. Go to **"Pixels" tab**:
-   - Click **"Pick Pixel from Screen"**
-   - Your screen shows a crosshair overlay
-   - Click on the pixel you want to monitor
-   - The coordinates and color are automatically filled in
+### Option B — Run from source (developers)
 
-4. Go to **"Type & Mode" tab**:
-   - **Monitor Type**: Normal (or Master/Slave for advanced setups)
-   - **Trigger Mode**: 
-     - **"Match"** = triggers when pixel IS the target color
-     - **"No Match"** = triggers when pixel is NOT the target color
+Pixel Bot uses [uv](https://docs.astral.sh/uv/) for dependency management. uv fetches the right Python for you, so **you don't need Python on PATH**.
 
-5. Go to **"Action" tab**:
-   - **Action Type**: Key Press / Hotkey / Log Only
-   - **Key/Hotkey**: The key(s) to press (e.g., "r", "ctrl+1")
-   - **Cooldown**: Minimum time (ms) between triggers
+```powershell
+# One-time: install uv
+irm https://astral.sh/uv/install.ps1 | iex
 
-6. Click **"Add Monitor"**
-
-### **Step 4: Use Your Monitor**
-- Monitor starts automatically
-- You'll see it in the "Active Monitors" list
-- Stats update in real-time
-- Activity logs show all actions
-
----
-
-## **Dashboard Overview**
-
-### **Main Sections:**
-
-```
-┌─────────────────────────────────────────────┐
-│  PIXEL BOT                    🟢 Connected  │
-├─────────────────────────────────────────────┤
-│                                             │
-│  [Add Monitor]  [Actions]                  │
-│                                             │
-│  ┌─────────────────┐  ┌──────────────────┐│
-│  │ Active Monitors │  │  Activity Logs   ││
-│  │                 │  │                  ││
-│  │ • HP Monitor    │  │  ✓ HP triggered  ││
-│  │ • Mana Monitor  │  │  ✓ Key pressed   ││
-│  │                 │  │                  ││
-│  └─────────────────┘  └──────────────────┘│
-└─────────────────────────────────────────────┘
+# Run (from the repo root)
+.\start.ps1
+# or just double-click start.bat
 ```
 
-### **Active Monitors**
-- Shows all your monitors
-- Green = active and checking
-- Click to pause/resume
-- Edit or delete monitors
+First launch does a `uv sync` (downloads deps into `.venv/`). Subsequent launches are instant.
 
-### **Activity Logs**
-- Real-time event feed
-- Shows triggers, actions, and state changes
-- Auto-scrolls to latest
+### Command-line flags
 
----
-
-## **Monitor Types**
-
-### **1. Normal Monitor** (Simple)
-- Checks one pixel
-- Triggers action when condition met
-- Independent of other monitors
-
-**Example:** Health low → Press health potion key
-
----
-
-### **2. Master Monitor** (Advanced)
-- Can check **multiple pixels** (up to 6)
-- Controls "slave" monitors
-- When master is ACTIVE → slaves can run
-- When master is INACTIVE → slaves are blocked
-
-**Logic Options:**
-- **All Match**: ALL pixels must match to activate
-- **Any Match**: ANY pixel matching activates
-
-**Example:** Check if game UI is visible (3 UI corners) → Enable all other monitors
-
----
-
-### **3. Slave Monitor** (Advanced)
-- Linked to a master monitor
-- Only runs when master is active
-- Prevents false triggers during loading screens
-
-**Example:** HP monitor (slave) → Only works when UI is visible (master)
-
----
-
-## **Trigger Modes**
-
-### **Match Mode** ✅
-- Triggers when pixel **IS** the target color
-- Use for: Detecting something appeared
-
-**Example:** 
-- Pixel turns RED → Trigger
-- Health bar full → Trigger
-
-### **No Match Mode** ❌
-- Triggers when pixel **is NOT** the target color  
-- Use for: Detecting something disappeared or changed
-
-**Example:**
-- Pixel NOT blue anymore → Trigger
-- Mana bar empty → Trigger
-
----
-
-## **Action Types**
-
-### **1. Key Press**
-- Press a single key
-- Examples: `r`, `1`, `F1`, `space`
-
-### **2. Hotkey**
-- Press multiple keys simultaneously
-- Examples: `ctrl+1`, `shift+f`, `alt+q`
-
-### **3. Log Only**
-- No action, just logs the trigger
-- Useful for testing
-
----
-
-## **Tips & Best Practices**
-
-### **✅ DO:**
-- Use **Master-Slave** for loading screen protection
-- Set **cooldowns** to prevent spam (1000ms = 1 second)
-- Use **"No Match"** for detecting changes
-- Test with **"Log Only"** first
-- Use descriptive monitor names
-
-### **❌ DON'T:**
-- Set cooldown too low (causes spam)
-- Monitor pixels that change constantly
-- Use on always-changing colors (gradients, animations)
-- Forget to pause monitors when done
-
----
-
-## **Common Use Cases**
-
-### **Example 1: Health Potion Bot**
 ```
-Type: Normal Monitor
-Pixel: Health bar (e.g., at 50% mark)
-Trigger: No Match (pixel NOT red = health dropped)
-Action: Press '1' (health potion key)
-Cooldown: 5000ms (5 seconds)
-```
+uv run pixelbot --help
 
-### **Example 2: Loading Screen Protection**
-```
-Master Monitor:
-  Name: "UI Visible"
-  Pixels: 3 UI corners (All Match)
-  Trigger: Match (all pixels = UI colors)
-  Action: Log Only
-
-Slave Monitors:
-  All your game monitors linked to "UI Visible"
-  → Only run when UI is actually visible
-```
-
-### **Example 3: Multi-Pixel Detection**
-```
-Type: Master Monitor
-Pixels: 
-  - Top-left UI corner
-  - Top-right UI corner
-  - Health bar location
-Logic: All Match (all 3 must match)
-Trigger: Match
-Action: Log "UI Fully Loaded"
+  --no-gui          Run the backend only; open http://localhost:<port> in any browser.
+  --port <N>        Preferred port. A nearby free port is picked if <N> is taken.
+  --debug           Verbose logs.
 ```
 
 ---
 
-## **Troubleshooting**
+## First monitor in 60 seconds
 
-### **Problem: "Port already in use"**
-**Solution:** Pixel Bot automatically finds a free port. Check the console window to see which port is being used.
-
-### **Problem: Monitor not triggering**
-**Possible causes:**
-1. **Wrong pixel location** → Re-pick the pixel
-2. **Tolerance too low** → Increase tolerance (try 15-20)
-3. **In cooldown** → Wait for cooldown to expire
-4. **Master monitor inactive** → Check if master is blocking
-5. **Wrong trigger mode** → Switch Match/No Match
-
-### **Problem: Too many triggers (spam)**
-**Solution:** Increase cooldown (e.g., 2000ms = 2 seconds)
-
-### **Problem: Pixel picker not working**
-**Solution:** 
-- Make sure no other overlay apps are running
-- Try running as Administrator
-- Check console for errors
-
-### **Problem: Actions not executing**
-**Possible causes:**
-1. **Game in fullscreen** → Try borderless windowed
-2. **Admin privileges** → Run Pixel Bot as Administrator
-3. **Wrong key name** → Check key spelling
-4. **Cooldown active** → Wait and try again
+1. Click **Add Monitor**.
+2. Give it a name (e.g. *"HP low"*).
+3. Open the **Pixels** tab → **Pick Pixel from Screen** → click the pixel you want to watch. Coordinates and colour are captured automatically.
+4. Open the **Type & Mode** tab → leave as **Normal** + **No Match** (fires when the pixel is no longer the target colour).
+5. Open the **Action** tab → **Key Press** → type `1` (for example) → set cooldown `1000` ms.
+6. Save. The monitor starts immediately.
 
 ---
 
-## **Configuration File (Advanced)**
+## Monitor types
 
-Create `pixelbot_config.ini` next to `PixelBot.exe`:
+| Type | What it does |
+|---|---|
+| **Normal** | Checks one pixel. Fires when its condition holds. |
+| **Master** | Checks **up to 6** pixels with `All Match` or `Any Match` logic. Gates its slaves. |
+| **Slave**  | Linked to a master. Only fires while that master is active. Blocks loading-screen misfires. |
+
+### Trigger modes
+
+- **Match** — fire when the pixel **is** the target colour.
+- **No Match** — fire when the pixel **is not** the target colour.
+
+### Actions
+
+- **Key Press** — single key (`r`, `1`, `F1`, `space`).
+- **Hotkey** — combo (`ctrl+1`, `shift+f`).
+- **Log Only** — no action; useful for dry-running a new monitor.
+
+---
+
+## Patterns that tend to work well
+
+### Health/mana flask
+
+```
+Type:     Normal
+Pixel:    a point inside your HP bar at the threshold you want
+Trigger:  No Match (fires when the HP pixel leaves its "healthy" colour)
+Action:   Key Press "1"
+Cooldown: 4000–6000 ms (match the flask charge regen)
+```
+
+### Loading-screen gate
+
+```
+Master:
+  Name:    "UI visible"
+  Pixels:  2–3 points that only exist on the HUD (map icon, flask frames...)
+  Logic:   All Match
+  Action:  Log Only
+
+All your gameplay monitors → set type = Slave, master = "UI visible".
+```
+
+Now nothing fires during loading screens, vendor windows, or cutscenes.
+
+---
+
+## Tips
+
+- Start any new monitor as **Log Only** — confirm it fires at the right moments before wiring up an action.
+- Increase **tolerance** (15–25) if colours vary with lighting/animations.
+- Don't monitor pixels inside gradients or animated elements.
+- Keep cooldowns honest — too low and you'll spam actions faster than your flasks recharge.
+- Use descriptive names. You'll forget what `Monitor_3` was.
+
+---
+
+## Configuration (optional)
+
+Drop `pixelbot_config.ini` next to `PixelBot.exe` (or the project root when running from source):
 
 ```ini
 [server]
 port = 5000
+host = 0.0.0.0
 
 [monitoring]
-check_interval = 0.1
-default_tolerance = 10
-default_cooldown = 1000
+check_interval = 0.1       ; 0.1 = 10 checks/sec. Lower = faster & more CPU.
+default_tolerance = 10     ; 0–255. Higher = more lenient colour matching.
+default_cooldown = 1000    ; ms between fires for new monitors.
 
 [advanced]
-log_level = INFO
-picker_timeout = 30
+log_level = INFO           ; DEBUG / INFO / WARNING / ERROR
+picker_timeout = 30        ; seconds before the pixel picker gives up
 ```
 
-**Settings:**
-- `check_interval`: 0.1 = 10 checks/sec (lower = faster, more CPU)
-- `default_tolerance`: 0-255 (higher = more lenient matching)
-- `default_cooldown`: Milliseconds between triggers
+---
+
+## Troubleshooting
+
+**Native window doesn't open.**
+The launcher falls back to opening your default browser at `http://localhost:<port>`. You can also run with `--no-gui` to skip the window entirely.
+
+**"Port already in use".**
+Pixel Bot hunts for the next free port automatically. Check the log line at startup (`Pixel Bot vX.Y — http://localhost:5001`).
+
+**Monitor won't trigger.**
+- Re-pick the pixel. Your HUD may have shifted (resolution change, new layout).
+- Increase tolerance.
+- Check trigger mode — Match vs No Match are easy to flip.
+- If it's a slave, verify its master is active.
+
+**Actions don't reach the game.**
+- Run Pixel Bot **as Administrator** — many games require elevated processes to receive synthetic input.
+- Use **borderless windowed** mode, not exclusive fullscreen.
+- Double-check the key name spelling.
+
+**Pixel picker overlay is invisible / stuck.**
+- Close other overlays (Discord, NVIDIA overlay, Steam overlay) that might capture mouse input first.
+- Run as Administrator.
+
+**Antivirus flags the built `.exe`.**
+Common PyInstaller false positive. Whitelist the executable, or build it yourself from source with `.\build.ps1`.
+
+**Game has anti-cheat.**
+Some games actively block synthetic input or flag automation. Check the game's ToS before using Pixel Bot; use at your own risk.
 
 ---
 
-## **Keyboard Shortcuts**
+## FAQ
 
-| Key | Action |
-|-----|--------|
-| Click monitor name | Toggle pause/resume |
-| - | - |
+**Can I run multiple instances?**
+Yes. Each one auto-picks a free port.
 
-*More shortcuts coming soon!*
+**Where are my monitors saved?**
+`monitors_config.json`, in the same folder as `PixelBot.exe` (or the project root in dev mode).
 
----
+**How do I back them up?**
+Copy `monitors_config.json` somewhere safe.
 
-## **Known Limitations**
+**How do I stop it?**
+Close the Pixel Bot window. In `--no-gui` mode, press `Ctrl+C` in the terminal.
 
-1. **Tesseract OCR**: Not included in standalone build. Install separately if using OCR features.
-2. **Admin games**: Some games require Pixel Bot to run as Administrator
-3. **Fullscreen**: Works best with borderless windowed mode
-4. **Multiple monitors**: Pick pixels carefully - coordinates are global
-
----
-
-## **FAQ**
-
-**Q: Is this a virus?**
-A: No! Antivirus may flag it (false positive) because PyInstaller executables are sometimes misidentified. You can check the source code or build it yourself.
-
-**Q: Does this work with game X?**
-A: Works with any game/app that displays on screen. Some anti-cheat systems may block it.
-
-**Q: Can I run multiple instances?**
-A: Yes! Each instance automatically uses a different port.
-
-**Q: How do I stop it?**
-A: Close the browser tab and the console window (or press Ctrl+C in console).
-
-**Q: Where are my monitors saved?**
-A: In `monitors_config.json` next to `PixelBot.exe` (auto-created).
-
-**Q: Can I backup my monitors?**
-A: Yes! Copy `monitors_config.json` to another location.
+**Does OCR work?**
+OCR and image-template matching were removed in v1.1 — they weren't wired to the UI, and `pytesseract`/`opencv` added ~200 MB to the build for nothing. Open an issue if you actually need them.
 
 ---
 
-## **Support**
+## Legal
 
-- **GitHub**: [Your GitHub repo URL]
-- **Issues**: [GitHub Issues URL]
-- **Logs**: Check the console window for detailed logs
-
----
-
-## **Legal**
-
-**Important:** Always check your game's Terms of Service before using automation tools. Some games prohibit automation and may ban accounts.
-
-**Pixel Bot is provided as-is with no warranty. Use at your own risk.**
-
----
-
-**Version:** 1.0.0
-**Last Updated:** 2024
-
----
-
-**Enjoy automating! 🚀**
-
+Always check the Terms of Service of the game or application before using automation. Some games prohibit it, and accounts have been banned. Pixel Bot is provided as-is, with no warranty.

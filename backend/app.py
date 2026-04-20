@@ -3,13 +3,11 @@ Pixel Bot Application - Main Flask Server (Refactored)
 A pixel bot for screen capture, pixel detection, and automation
 """
 
+import logging
+
 from flask import Flask, send_from_directory
 from flask_cors import CORS
 from flask_socketio import SocketIO
-import os
-import logging
-import sys
-import time
 
 # Import configuration
 from config import get_config
@@ -84,65 +82,7 @@ def get_status():
 
 
 if __name__ == '__main__':
-    # Create necessary directories
-    os.makedirs(Config.STATIC_FOLDER, exist_ok=True)
-    
-    # Find a free port if the default is in use
-    try:
-        port = Config.find_free_port(Config.PORT, max_attempts=10)
-        if port != Config.PORT:
-            logger.warning(f"Port {Config.PORT} is in use. Using port {port} instead.")
-            Config.PORT = port
-    except Exception as e:
-        logger.error(f"Error finding free port: {e}")
-        # Fall back to default port
-        port = Config.PORT
-    
-    # Load monitors from file on startup
-    monitors = persistence_service.load_monitors()
-    monitor_service.load_monitors(monitors)
-    
-    # Start monitoring if there are monitors
-    if monitor_service.count() > 0:
-        monitoring_loop.start()
-    
-    print('=' * 50)
-    print('Pixel Bot Server Starting...')
-    print(f'Server: http://localhost:{port}')
-    print(f'Loaded {monitor_service.count()} monitor(s) from config')
-    counts = monitor_service.count_by_type()
-    print(f'  - Masters: {counts["master"]}, Slaves: {counts["slave"]}, Normal: {counts["normal"]}')
-    print('=' * 50)
-    
-    # Auto-open browser if running as standalone
-    is_standalone = getattr(sys, 'frozen', False)
-    if is_standalone:
-        import webbrowser
-        import threading
-        def open_browser():
-            import time
-            time.sleep(2)  # Wait for server to start
-            webbrowser.open(f'http://localhost:{port}')
-        threading.Thread(target=open_browser, daemon=True).start()
-        logger.info("Running as standalone - browser will open automatically")
-    
-    # Run the Flask-SocketIO server
-    try:
-        # Disable reloader to prevent double-startup in debug mode
-        socketio.run(
-            app, 
-            debug=Config.DEBUG, 
-            host=Config.HOST, 
-            port=port,
-            use_reloader=False  # Prevents Flask from spawning a second process
-        )
-    except OSError as e:
-        if "Address already in use" in str(e):
-            logger.error(f"Port {port} is already in use. Please close other instances or specify a different port.")
-            print("\n" + "="*50)
-            print(f"ERROR: Port {port} is already in use!")
-            print("Please close other instances of Pixel Bot or change the port in config.")
-            print("="*50)
-            input("Press Enter to exit...")
-        else:
-            raise
+    # Direct invocation (legacy). Prefer `uv run pixelbot` which uses the launcher.
+    from pixelbot.launcher import run as _run  # type: ignore
+
+    _run()
