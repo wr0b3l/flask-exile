@@ -6,9 +6,6 @@ Monitors specified pixels and triggers keyboard actions on color changes
 import time
 import pydirectinput
 from PIL import ImageGrab
-import json
-import sys
-import threading
 from datetime import datetime
 
 
@@ -151,63 +148,3 @@ class PixelMonitor:
             if monitor['last_match']:
                 print(f"   Last match: {monitor['last_match'].strftime('%H:%M:%S')}")
     
-    def save_config(self, filename):
-        """Save monitor configuration to JSON"""
-        config = []
-        for m in self.monitors:
-            config.append({
-                'name': m['name'],
-                'x': m['x'],
-                'y': m['y'],
-                'target_color': m['target_color'],
-                'tolerance': m['tolerance'],
-                'action': m['action']
-            })
-        
-        with open(filename, 'w') as f:
-            json.dump(config, f, indent=2)
-        print(f"✓ Configuration saved to {filename}")
-    
-    def load_config(self, filename):
-        """Load monitor configuration from JSON"""
-        with open(filename, 'r') as f:
-            config = json.load(f)
-        
-        for m in config:
-            self.add_monitor(
-                m['x'], m['y'],
-                tuple(m['target_color']),
-                m['action'],
-                m['tolerance'],
-                m['name']
-            )
-        print(f"✓ Loaded {len(config)} monitor(s) from {filename}")
-
-
-# Example usage
-if __name__ == '__main__':
-    monitor = PixelMonitor()
-    
-    # Example: Monitor pixel at (100, 100) for red color, press space when detected
-    monitor.add_monitor(
-        x=100,
-        y=100,
-        target_color=(255, 0, 0),  # Red
-        action={'type': 'keypress', 'key': 'space'},
-        tolerance=50,
-        name="Red Detector"
-    )
-    
-    # Example: Monitor another pixel, press ctrl+c when green appears
-    monitor.add_monitor(
-        x=200,
-        y=200,
-        target_color=(0, 255, 0),  # Green
-        action={'type': 'hotkey', 'keys': ['ctrl', 'c']},
-        tolerance=30,
-        name="Green Detector"
-    )
-    
-    # Run monitor
-    monitor.run()
-

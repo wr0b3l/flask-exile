@@ -1,4 +1,23 @@
-/* Path of Exile 2 Inspired Dark Fantasy Theme - Compact Version */
+/* Path of Exile 2 Inspired Dark Fantasy Theme */
+
+:root {
+    --bg-0: #120d0a;
+    --bg-1: #1a1410;
+    --bg-2: #221812;
+    --bg-3: #2d1f1a;
+    --border: #3d2a1f;
+    --border-hover: #6b4423;
+    --accent: #d4af37;
+    --accent-soft: rgba(212, 175, 55, 0.18);
+    --text: #d4c5a9;
+    --text-muted: #8b7355;
+    --danger: #c0392b;
+    --success: #7ca259;
+    --radius: 4px;
+    --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.35);
+    --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.5);
+    --transition: 180ms ease;
+}
 
 * {
     margin: 0;
@@ -6,13 +25,56 @@
     box-sizing: border-box;
 }
 
+html, body {
+    height: 100%;
+}
+
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #1a1410 0%, #2d1f1a 50%, #1a1410 100%);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", Roboto, system-ui, sans-serif;
+    background: radial-gradient(ellipse at top, var(--bg-2) 0%, var(--bg-0) 70%);
     background-attachment: fixed;
     min-height: 100vh;
-    padding: 15px;
-    color: #d4c5a9;
+    padding: 18px;
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+
+/* Nicer selection + focus */
+::selection {
+    background: var(--accent-soft);
+    color: #fff8e1;
+}
+
+:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+::-webkit-scrollbar-track {
+    background: var(--bg-0);
+}
+::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--border-hover);
+}
+
+/* Calmer motion: tone down legacy animations for users who prefer less */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        transition-duration: 0.001ms !important;
+    }
 }
 
 .container {
